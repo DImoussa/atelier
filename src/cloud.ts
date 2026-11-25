@@ -11,7 +11,14 @@ export const useCloud = create<{
 const setC = useCloud.setState;
 
 export async function api(x: string, opts: RequestInit = {}) {
-  const r = await fetch('/api/a?x=' + x, { credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, ...opts });
+  const init: RequestInit = { credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, ...opts };
+  // gros document : on compresse l'envoi (limite de 4,5 Mo côté serveur)
+  if (typeof init.body === 'string' && init.body.length > 100_000 && typeof CompressionStream !== 'undefined') {
+    const gz = await new Response(new Blob([init.body]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();
+    init.body = gz;
+    init.headers = { 'Content-Type': 'application/octet-stream', 'x-gz': '1' };
+  }
+  const r = await fetch('/api/a?x=' + x, init);
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw Object.assign(new Error(j.error || String(r.status)), { status: r.status });
   return j;
@@ -52,6 +59,9 @@ async function push() {
   } catch (e: any) {
     console.error(e);
     setC({ status: 'err' });
+    dirty = true; // les modifications restent à envoyer : on réessaie bientôt, sans jamais écraser le local
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(push, 15000);
   } finally {
     pushing = false;
     if (again) { again = false; push(); }
@@ -125,18 +135,8 @@ async function firstSync() {
   const u = useCloud.getState().user;
   setC({ status: 'sync' });
   try {
-    const { doc } = await api('doc');
-    const key = 'atl_linked_' + u.id;
-    const s = useStore.getState();
-    if (doc && !localStorage.getItem(key)) {
-      const merge = confirm('Votre compte contient déjà des planches.\n\nOK : ajouter aussi les planches de ce navigateur à votre compte.\nAnnuler : afficher seulement celles du compte.');
-      if (!merge) { applyRemote(doc); synced = new Set(idsOf(doc)); }
-    } else if (doc) {
-      applyRemote({ boards: doc.boards, cards: doc.cards });
-      synced = new Set(idsOf(doc));
-    }
-    localStorage.setItem(key, '1');
-    void s;
+    // Le travail de ce navigateur n'est jamais écrasé : on l'envoie d'abord, le serveur le fusionne
+    // avec la copie en ligne (la version la plus récente de chaque carte gagne), puis on affiche le résultat.
     hooks.afterSave = schedulePush;
     remoteBlobs();
     await push();

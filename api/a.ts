@@ -4,6 +4,7 @@ import { MongoClient, Db } from 'mongodb';
 import { OAuth2Client } from 'google-auth-library';
 import { SignJWT, jwtVerify } from 'jose';
 import { randomBytes } from 'crypto';
+import { gzipSync, gunzipSync } from 'zlib';
 
 const ROOT = 'root';
 /** Préfixe des collections (Atelier partage la base du CRM). */
@@ -25,9 +26,23 @@ function send(res: any, code: number, body: any, headers: Record<string, string>
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'no-store');
   for (const [k, v] of Object.entries(headers)) res.setHeader(k, v);
-  res.end(JSON.stringify(body));
+  const json = Buffer.from(JSON.stringify(body));
+  // Vercel limite les réponses à 4,5 Mo : les gros documents sont compressés (le navigateur décompresse seul).
+  if (json.length > 200_000 && /gzip/.test(String(res.req?.headers?.['accept-encoding'] || ''))) {
+    res.setHeader('Content-Encoding', 'gzip');
+    res.setHeader('Vary', 'Accept-Encoding');
+    return res.end(gzipSync(json));
+  }
+  res.end(json);
 }
 async function readBody(req: any): Promise<any> {
+  let raw: Buffer | null = null;
+  if (req.headers['x-gz']) {
+    // corps compressé par le navigateur (gros documents)
+    if (Buffer.isBuffer(req.body)) raw = req.body;
+    else { const chunks: Buffer[] = []; for await (const c of req) chunks.push(c as Buffer); raw = Buffer.concat(chunks); }
+    return JSON.parse(gunzipSync(raw).toString('utf8') || '{}');
+  }
   if (req.body !== undefined) return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body;
   const chunks: Buffer[] = [];
   for await (const c of req) chunks.push(c as Buffer);
