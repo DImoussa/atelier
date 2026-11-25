@@ -37,7 +37,7 @@ function MajBanner() {
   useEffect(() => { if (!desktop) return; desktop.majEtat().then(setInfo); desktop.surMaj(setInfo); }, []);
   if (!info) return null;
   return (
-    <div style={{ ...box, left: 'auto', right: 12, maxWidth: 380 }}>
+    <div style={{ ...box, left: 'auto', right: 12, bottom: 60, maxWidth: 380 }}>
       <span style={{ flex: 1 }}><b>Nouvelle version {info.version} disponible</b><br />
         {err || (info.prete ? 'Elle est déjà téléchargée.' : 'Ouvre le fichier téléchargé et glisse l’app dans Applications.')}</span>
       <button className="btn small" disabled={busy} onClick={async () => {
@@ -64,7 +64,8 @@ function WebGoogleButton() {
 }
 
 const box: React.CSSProperties = {
-  position: 'fixed', left: 12, bottom: 12, zIndex: 900, display: 'flex', alignItems: 'center', gap: 8,
+  // à droite de la barre d'outils (76 px) pour ne pas cacher ses boutons
+  position: 'fixed', left: 88, bottom: 12, zIndex: 900, display: 'flex', alignItems: 'center', gap: 8,
   background: 'var(--card, #fff)', color: 'var(--text, #222)', borderRadius: 10, padding: '6px 10px',
   boxShadow: '0 2px 10px rgba(0,0,0,.15)', font: '13px system-ui, sans-serif',
 };
