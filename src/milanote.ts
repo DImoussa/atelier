@@ -163,7 +163,7 @@ export function milanoteToAtelier(dump: any) {
       const siblings = els.filter(e => e.location?.parentId === boardId && e.location?.section === 'CANVAS');
       const minX = siblings.length ? Math.min(...siblings.map(e => e.location?.position?.x ?? 0)) * G : 0;
       const minY = siblings.length ? Math.min(...siblings.map(e => e.location?.position?.y ?? 0)) * G : 0;
-      cards.push({ id, type: 'column', parent: boardId, x: minX - 320, y: minY, w: DEFAULT_W.column, z: 0, order: 0, color: null, data: { title: 'À trier (Milanote)', collapsed: false }, createdAt: now, updatedAt: now, trashed: null });
+      cards.push({ id, type: 'column', parent: 'b-' + boardId, x: minX - 320, y: minY, w: DEFAULT_W.column, z: 0, order: 0, color: null, data: { title: 'À trier (Milanote)', collapsed: false }, createdAt: now, updatedAt: now, trashed: null });
       if (boardId === dump.root) roots.push(id);
     }
     return inboxCol.get(boardId)!;
@@ -176,9 +176,11 @@ export function milanoteToAtelier(dump: any) {
     const loc = e.location || {};
     const c = e.content || {};
     const parentEl = byId.get(loc.parentId);
-    let parent = loc.parentId;
-    if (loc.section === 'INBOX' && parentEl?.elementType !== 'COLUMN') parent = inboxOf(loc.parentId);
-    const inColumn = parent !== loc.parentId || parentEl?.elementType === 'COLUMN';
+    // une planche et sa carte ont des identifiants distincts (« b-… » pour la planche)
+    const parentIsColumn = parentEl?.elementType === 'COLUMN';
+    let parent = parentIsColumn ? loc.parentId : 'b-' + loc.parentId;
+    let inColumn = parentIsColumn;
+    if (loc.section === 'INBOX' && !parentIsColumn) { parent = inboxOf(loc.parentId); inColumn = true; }
     const pos = loc.position || {};
     const base = {
       id, parent, x: Math.round((pos.x || 0) * G), y: Math.round((pos.y || 0) * G), z: ++z,
@@ -212,8 +214,8 @@ export function milanoteToAtelier(dump: any) {
         card = { ...base, type: 'column', w: width('column'), data: { title: c.title || '', collapsed: c.inbox === 'CLOSED' && false } };
         break;
       case 'BOARD':
-        boards.push({ id, title: c.title || 'Planche', icon: '✦', color: c.color || '#4a86c7', createdAt: base.createdAt });
-        card = { ...base, type: 'board', w: width('board'), data: { boardId: id } };
+        boards.push({ id: 'b-' + id, title: c.title || 'Planche', icon: '✦', color: c.color || '#4a86c7', createdAt: base.createdAt });
+        card = { ...base, type: 'board', w: width('board'), data: { boardId: 'b-' + id } };
         break;
       case 'DOCUMENT':
         card = { ...base, type: 'document', w: width('document'), data: { title: c.title || 'Document', html: pmHtml(c.textContent) } };
@@ -234,7 +236,7 @@ export function milanoteToAtelier(dump: any) {
     }
     if (!card) continue;
     cards.push(card);
-    if (loc.parentId === dump.root && parent === loc.parentId) roots.push(id);
+    if (parent === 'b-' + dump.root) roots.push(id);
   }
   // les lignes rattachées à une carte non importée gardent leurs coordonnées
   const ids = new Set(cards.map(c => c.id));
