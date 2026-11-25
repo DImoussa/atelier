@@ -1,0 +1,3 @@
+// Icônes de planche proposées dans le sélecteur (celles utilisées dans l'espace importé depuis Milanote).
+const NAMES = 'arrow-right-to-arc,backward-fast,bell-slash,book-sparkles,books,boxes-stacked,bread-loaf,camera,camera-viewfinder,corn,feather,feather-pointed,film,gamepad-modern,garlic,gif,glasses-round,grid,grid-2,grid-4,grid-5,head-side-heart,hose-reel,mobile,panel-fire,pen-line,person,plane-departure,raygun,rectangles-mixed,sack,scarecrow,scribd,scroll-old,sd-card,seal-question,shirt,sitemap,square-1,trade-federation,user-alien,violin,wallet'.split(',');
+export const MILANOTE_ICONS = NAMES.map(n => `https://static.milanote.com/element-icons/png/48x48/${n}.png`);
