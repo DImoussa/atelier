@@ -1,0 +1,85 @@
+name: Compiler l'app de bureau
+
+# Même fonctionnement que SSD Drive Sync.
+# Un tag v* (ex. v1.0.1) compile Mac + Windows ET publie la version sur GitHub Releases,
+# avec les fichiers latest*.yml que l'app lit pour se mettre à jour toute seule.
+# Lancé à la main (workflow_dispatch), il compile seulement, sans rien publier.
+#
+# Déroulé d'une version :
+#   1. « preparer » crée la release en BROUILLON, une seule fois.
+#   2. Mac et Windows compilent en parallèle et envoient leurs fichiers dans ce brouillon.
+#   3. « rendre-visible » publie la release seulement si tous les fichiers sont là.
+#
+# Pour sortir une version : changer "version" dans desktop/package.json, committer, puis
+#   git tag v1.0.1 && git push --tags
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  preparer:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Créer la release en brouillon
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "La release $TAG existe déjà"
+          else
+            git log -1 --format=%b | grep -v '^Co-Authored-By' > notes.md
+            gh release create "$TAG" --draft --title "Atelier ${TAG#v}" --notes-file notes.md
+          fi
+
+  build:
+    needs: preparer
+    if: ${{ !cancelled() && needs.preparer.result != 'failure' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run ${{ startsWith(github.ref, 'refs/tags/v') && 'publier' || 'dist' }}
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installeur-${{ matrix.os }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.dmg
+            desktop/dist/*.yml
+
+  rendre-visible:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publier la release si les fichiers Mac et Windows sont tous là
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          presents=$(gh release view "$TAG" --json assets -q '.assets[] | select(.state == "uploaded") | .name')
+          for f in Atelier-Windows.exe Atelier-Mac.dmg latest.yml latest-mac.yml; do
+            echo "$presents" | grep -qx "$f" || { echo "Fichier manquant : $f (la release reste en brouillon)"; exit 1; }
+          done
+          gh release edit "$TAG" --draft=false --latest

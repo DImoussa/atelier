@@ -1,0 +1,49 @@
+{
+  "name": "atelier-desktop",
+  "productName": "Atelier",
+  "version": "1.0.0",
+  "description": "Atelier : tableaux visuels",
+  "author": "DImoussa",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "icone": "electron scripts/icone.js",
+    "dist": "electron-builder --publish never",
+    "publier": "electron-builder --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "6.3.9"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.dimoussa.atelier",
+    "files": ["main.js", "preload.js", "src/**", "build/icon.png"],
+    "win": { "target": "nsis" },
+    "nsis": {
+      "oneClick": true,
+      "runAfterFinish": true,
+      "createStartMenuShortcut": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Atelier",
+      "artifactName": "Atelier-Windows.${ext}"
+    },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["universal"] }],
+      "category": "public.app-category.productivity"
+    },
+    "directories": { "buildResources": "build" },
+    "icon": "build/icon.png",
+    "dmg": {
+      "title": "Atelier",
+      "contents": [
+        { "x": 140, "y": 190, "type": "file" },
+        { "x": 400, "y": 190, "type": "link", "path": "/Applications" }
+      ],
+      "artifactName": "Atelier-Mac.${ext}"
+    },
+    "publish": { "provider": "github", "owner": "DImoussa", "repo": "atelier", "releaseType": "release" }
+  }
+}

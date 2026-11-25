@@ -165,6 +165,20 @@ export async function startShared(token: string, seed: any) {
   return true;
 }
 
+/** Page ouverte par l'app de bureau dans le navigateur : on connecte puis on renvoie la session à l'app. */
+export async function startDesktopHandoff(port: string, state: string) {
+  await config();
+  const go = async () => {
+    const { t } = await api('handoff');
+    location.replace(`http://127.0.0.1:${encodeURIComponent(port)}/cb?state=${encodeURIComponent(state)}&t=${encodeURIComponent(t)}`);
+  };
+  try {
+    const { user } = await api('me');
+    if (user) { setC({ ready: true, shareError: 'Connexion à l’app Atelier…' }); return go(); }
+  } catch { /* ignoré */ }
+  setC({ ready: true, needLogin: true, shareError: 'Connectez-vous avec Google pour ouvrir votre compte dans l’app Atelier.' });
+}
+
 export async function onGoogleCredential(credential: string) {
   try {
     const { user } = await api('login', { method: 'POST', body: JSON.stringify({ credential }) });

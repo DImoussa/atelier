@@ -166,6 +166,8 @@ export default async function handler(req: any, res: any) {
     // ---- tout le reste demande d'Ãªtre connectÃ© ----
     const u = await currentUser(req);
     if (x === 'me') return send(res, 200, { user: u });
+    // App de bureau : remet la session au petit serveur local de l'app (127.0.0.1 uniquement, côté navigateur).
+    if (x === 'handoff') return u ? send(res, 200, { t: cookie(req, 'atl_s') }) : send(res, 401, { error: 'Connexion requise' });
     if (!u) return send(res, 401, { error: 'Connexion requise' });
     const d = await db();
 

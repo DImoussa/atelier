@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { loadDoc, applyHash, useStore } from './store';
 import { seed } from './templates';
-import { initCloud, startShared } from './cloud';
+import { initCloud, startShared, startDesktopHandoff } from './cloud';
 import { CloudPanel } from './components/CloudPanel';
 import './styles.css';
 
@@ -14,8 +14,11 @@ const cloudEl = document.createElement('div');
 document.body.appendChild(cloudEl);
 createRoot(cloudEl).render(<CloudPanel />);
 
-const shareToken = new URLSearchParams(location.search).get('partage');
-if (shareToken) {
+const params = new URLSearchParams(location.search);
+const shareToken = params.get('partage');
+if (params.get('bureau') && params.get('state')) {
+  startDesktopHandoff(params.get('bureau')!, params.get('state')!);
+} else if (shareToken) {
   startShared(shareToken, seed).then(ok => { if (ok) root.render(<App />); });
 } else {
   loadDoc(seed).then(() => {

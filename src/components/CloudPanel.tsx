@@ -14,7 +14,42 @@ function loadGsi() {
   return gsiLoaded;
 }
 
+const desktop: any = (window as any).atelierDesktop;
+
 function GoogleButton() {
+  if (desktop) return <DesktopLogin />;
+  return <WebGoogleButton />;
+}
+
+/** App de bureau : la connexion se fait dans le navigateur de l'ordinateur. */
+function DesktopLogin() {
+  const [wait, setWait] = useState(false);
+  return <button className="btn small" disabled={wait} onClick={async () => { setWait(true); await desktop.connexion(); setWait(false); }}>
+    {wait ? 'Terminez la connexion dans votre navigateur…' : 'Se connecter avec Google'}
+  </button>;
+}
+
+/** Bandeau « Nouvelle version disponible » de l'app de bureau (comme SSD Drive Sync). */
+function MajBanner() {
+  const [info, setInfo] = useState<any>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => { if (!desktop) return; desktop.majEtat().then(setInfo); desktop.surMaj(setInfo); }, []);
+  if (!info) return null;
+  return (
+    <div style={{ ...box, left: 'auto', right: 12, maxWidth: 380 }}>
+      <span style={{ flex: 1 }}><b>Nouvelle version {info.version} disponible</b><br />
+        {err || (info.prete ? 'Elle est déjà téléchargée.' : 'Ouvre le fichier téléchargé et glisse l’app dans Applications.')}</span>
+      <button className="btn small" disabled={busy} onClick={async () => {
+        if (info.prete) setBusy(true);
+        const r = await desktop.majInstaller();
+        if (r && r.erreur) { setErr(r.erreur); setBusy(false); }
+      }}>{busy ? 'Installation…' : err ? 'Réessayer' : info.prete ? 'Redémarrer' : 'MAJ'}</button>
+    </div>
+  );
+}
+
+function WebGoogleButton() {
   const ref = useRef<HTMLDivElement>(null);
   const clientId = useCloud(s => s.clientId);
   useEffect(() => {
@@ -43,7 +78,7 @@ export function CloudPanel() {
 
   if (needLogin || shareError) return (
     <div style={{ ...box, left: '50%', top: '40%', bottom: 'auto', transform: 'translateX(-50%)', flexDirection: 'column', padding: 24, gap: 14, maxWidth: 360, textAlign: 'center' }}>
-      <b>Planche partagée</b>
+      <b>Atelier</b>
       <span>{shareError}</span>
       {needLogin && <GoogleButton />}
     </div>
@@ -64,6 +99,7 @@ export function CloudPanel() {
         ) : share ? null : <GoogleButton />}
       </div>
       {open && <ShareDialog onClose={() => setOpen(false)} />}
+      <MajBanner />
     </>
   );
 }
