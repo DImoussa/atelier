@@ -5,6 +5,7 @@ import { APP_NAME, ROOT_ID, UNSORTED } from '../types';
 import { exportMarkdown, exportWord } from '../exportText';
 import { startPresentation } from '../presentation';
 import { exportPng, exportPdf, exportBoardJson, importBoardJson, exportBackup, importBackup } from '../exporter';
+import { useMilanote } from './CloudPanel';
 
 export function TopBar() {
   const boardId = useStore(s => s.boardId);
@@ -93,6 +94,7 @@ export function TopBar() {
               {!readOnly && <>
                 <div className="menu-sep" />
                 {item('import', 'Importer une planche (.json)', () => importBoardJson())}
+                {item('import', 'Importer depuis Milanote…', () => useMilanote.setState({ open: true }))}
                 {item('template', 'Appliquer un modèle', () => set({ modal: { kind: 'templates', boardId } }))}
                 {item('color', 'Apparence de la planche', () => set({ modal: { kind: 'icon', boardId } }))}
                 {boardId !== ROOT_ID && item('copy', 'Dupliquer la planche', () => { const id = duplicateBoard(boardId); if (id) navigate(id); })}

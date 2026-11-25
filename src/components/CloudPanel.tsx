@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useCloud, onGoogleCredential, logout, api, shareUrl } from '../cloud';
 import { useStore, toast } from '../store';
+import { create } from 'zustand';
+import { bookmarkletCode } from '../milanote';
 
 declare const google: any;
 let gsiLoaded: Promise<void> | null = null;
@@ -101,7 +103,38 @@ export function CloudPanel() {
       </div>
       {open && <ShareDialog onClose={() => setOpen(false)} />}
       <MajBanner />
+      <MilanoteDialog />
     </>
+  );
+}
+
+/** Mode d'emploi de l'import Milanote, avec le favori à glisser. */
+export const useMilanote = create<{ open: boolean }>(() => ({ open: new URLSearchParams(location.search).has('milanote') }));
+function MilanoteDialog() {
+  const open = useMilanote(s => s.open);
+  const link = useRef<HTMLAnchorElement>(null);
+  useEffect(() => { if (link.current) link.current.setAttribute('href', 'javascript:' + encodeURIComponent(bookmarkletCode.slice('javascript:'.length))); }, [open]);
+  if (!open) return null;
+  const close = () => useMilanote.setState({ open: false });
+  const step: React.CSSProperties = { margin: '0 0 4px' };
+  return (
+    <div onMouseDown={close} style={{ position: 'fixed', inset: 0, zIndex: 950, background: 'rgba(0,0,0,.3)', display: 'grid', placeItems: 'center' }}>
+      <div onMouseDown={e => e.stopPropagation()} style={{ ...box, position: 'static', flexDirection: 'column', alignItems: 'stretch', width: 480, padding: 22, gap: 12, lineHeight: 1.45 }}>
+        <b style={{ fontSize: 16 }}>Importer depuis Milanote</b>
+        <p style={step}><b>1.</b> Une seule fois, dans Chrome, Safari ou Firefox : glissez ce bouton dans votre barre de favoris.</p>
+        <a ref={link} onClick={e => { e.preventDefault(); toast('Glissez le bouton dans la barre de favoris'); }}
+          style={{ alignSelf: 'center', background: '#e8553d', color: '#fff', padding: '8px 16px', borderRadius: 8, textDecoration: 'none', fontWeight: 600, cursor: 'grab' }}>
+          Exporter vers Atelier
+        </a>
+        <button className="btn small" style={{ alignSelf: 'center' }} onClick={() => navigator.clipboard.writeText('javascript:' + encodeURIComponent(bookmarkletCode.slice('javascript:'.length))).then(() => toast('Code copié : créez un favori et collez-le comme adresse'))}>
+          Ou copier le code du favori
+        </button>
+        <p style={step}><b>2.</b> Ouvrez votre planche sur milanote.com, puis cliquez sur le favori « Exporter vers Atelier ». Il parcourt toutes les sous-planches (laissez l'onglet ouvert) et télécharge un fichier <code>.milanote.json</code>.</p>
+        <p style={step}><b>3.</b> Ici, dans Atelier : menu ⋯ en haut à droite → <b>Importer une planche</b>, et choisissez ce fichier. Notes, tâches, images, colonnes, lignes, tableaux et sous-planches sont recréés.</p>
+        <span style={{ opacity: .7, fontSize: 12 }}>Les images et fichiers restent hébergés chez Milanote : ne supprimez pas votre compte Milanote tant qu'ils servent.</span>
+        <button className="btn" onClick={close}>Fermer</button>
+      </div>
+    </div>
   );
 }
 

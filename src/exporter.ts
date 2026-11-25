@@ -5,6 +5,7 @@ import { contentBounds, viewCenterWorld } from './interaction';
 import { blobGet, blobSet, blobToDataUrl, dataUrlToBlob, blobKeys } from './db';
 import { downloadBlob, pickFiles } from './files';
 import { APP_NAME, ROOT_ID } from './types';
+import { milanoteToAtelier } from './milanote';
 
 const PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
@@ -100,7 +101,8 @@ export async function importBoardJson() {
   const [f] = await pickFiles('.json,application/json', false);
   if (!f) return;
   try {
-    const file = JSON.parse(await f.text());
+    let file = JSON.parse(await f.text());
+    if (file.format === 'milanote-dump') { toast('Conversion de la planche Milanote…'); file = milanoteToAtelier(file); }
     if (file.format !== 'atelier-board' || !validPayload(file.payload)) throw new Error('format');
     const bmap = await restoreBlobs(file.blobs, file.payload);
     const s = get();
