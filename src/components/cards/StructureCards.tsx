@@ -9,12 +9,14 @@ import type { Board } from '../../types';
 
 /** Vignette de planche : image de couverture si définie, sinon icône sur fond coloré. */
 export function BoardIcon({ board, size }: { board: Board; size?: number }) {
-  const cover = useBlobUrl(board.cover);
+  const coverIsUrl = /^https?:/.test(board.cover || '');
+  const blobCover = useBlobUrl(coverIsUrl ? null : board.cover);
+  const cover = coverIsUrl ? board.cover : blobCover;
   const st: React.CSSProperties = { background: board.color, ...(size ? { width: size, height: size, fontSize: size * 0.47 } : {}) };
   if (cover) Object.assign(st, { backgroundImage: `url("${cover}")`, backgroundSize: 'cover', backgroundPosition: 'center' });
   return (
     <div className={'board-icon' + (cover ? ' has-cover' : '')} style={st} title="Double-cliquez pour ouvrir">
-      {!cover && <span>{board.icon}</span>}
+      {!cover && (/^https?:/.test(board.icon) ? <img src={board.icon} alt="" style={{ width: '62%', height: '62%', objectFit: 'contain' }} draggable={false} /> : <span>{board.icon}</span>)}
     </div>
   );
 }

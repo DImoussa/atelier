@@ -214,7 +214,8 @@ export function milanoteToAtelier(dump: any) {
         card = { ...base, type: 'column', w: width('column'), data: { title: c.title || '', collapsed: c.inbox === 'CLOSED' && false } };
         break;
       case 'BOARD':
-        boards.push({ id: 'b-' + id, title: c.title || 'Planche', icon: '✦', color: c.color || '#4a86c7', createdAt: base.createdAt });
+        // icône et photo de couverture de la planche : on garde les adresses d'origine
+        boards.push({ id: 'b-' + id, title: c.title || 'Planche', icon: c.icon?.png || '✦', color: c.color || '#4a86c7', createdAt: base.createdAt, cover: c.image?.regular || c.image?.original || null });
         card = { ...base, type: 'board', w: width('board'), data: { boardId: 'b-' + id } };
         break;
       case 'DOCUMENT':

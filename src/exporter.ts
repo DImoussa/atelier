@@ -89,7 +89,7 @@ async function restoreBlobs(blobs: Record<string, string>, payload: ClipPayload)
     map.set(oldId, nid);
   }
   for (const c of payload.cards) if (c.data?.blobId) c.data.blobId = map.get(c.data.blobId) || null;
-  for (const b of payload.boards as any[]) { if (b.cover) b.cover = map.get(b.cover) || null; if (b.bgImage) b.bgImage = map.get(b.bgImage) || null; }
+  for (const b of payload.boards as any[]) { if (b.cover && !/^https?:/.test(b.cover)) b.cover = map.get(b.cover) || null; if (b.bgImage) b.bgImage = map.get(b.bgImage) || null; }
   return map;
 }
 

@@ -303,7 +303,7 @@ function MoveModal({ ids }: { ids: string[] }) {
           return (
             <button key={t.id} className="move-item" disabled={t.id === current} style={{ paddingLeft: 12 + (q ? 0 : t.depth * 18) }}
               onClick={() => { moveToBoard(ids, t.id); set({ modal: null }); }}>
-              <span className="mini-icon" style={{ background: b.color }}>{b.icon}</span> {b.title}{t.id === current && <span className="muted tiny"> (planche actuelle)</span>}
+              <span className="mini-icon" style={{ background: b.color }}>{/^https?:/.test(b.icon) ? <img src={b.icon} alt="" style={{ width: '70%', height: '70%' }} /> : b.icon}</span> {b.title}{t.id === current && <span className="muted tiny"> (planche actuelle)</span>}
             </button>
           );
         })}
