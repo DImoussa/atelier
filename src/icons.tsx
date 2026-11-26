@@ -85,11 +85,11 @@ export function Icon({ name, size = 20, className, style }: { name: string; size
   );
 }
 
-export function AppLogo({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="7" fill="#2f3a45" />
-      <path d="M8 23V9l8 8 8-8v14" stroke="#fff" strokeWidth="2.6" fill="none" strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
-  );
+// Ours de l'app ; version Noël du 26 novembre au 26 décembre.
+export function estNoel(d = new Date()) {
+  return (d.getMonth() === 10 && d.getDate() >= 26) || (d.getMonth() === 11 && d.getDate() <= 26);
+}
+
+export function AppLogo({ size = 24 }: { size?: number }) {
+  return <img src={estNoel() ? '/logo-noel.svg' : '/logo.svg'} width={size} height={size} alt="" aria-hidden="true" />;
 }
