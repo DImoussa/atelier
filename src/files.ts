@@ -18,6 +18,7 @@ export function embedInfo(url: string): { src: string; ratio?: number; px?: numb
   let m = url.match(/open\.spotify\.com\/(?:intl-\w+\/)?(track|album|playlist|episode|show|artist)\/([\w]+)/);
   if (m) return { src: `https://open.spotify.com/embed/${m[1]}/${m[2]}`, px: m[1] === 'track' || m[1] === 'episode' ? 152 : 352 };
   if (/^https?:\/\/(www\.)?soundcloud\.com\/[^/]+\/[^/]+/.test(url)) return { src: `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}`, px: 166 };
+  m = url.match(/pinterest\.[a-z.]+\/pin\/(\d+)/); if (m) return { src: `https://assets.pinterest.com/ext/embed.html?id=${m[1]}`, ratio: 140 };
   m = url.match(/loom\.com\/(?:share|embed)\/([\w]+)/); if (m) return { src: `https://www.loom.com/embed/${m[1]}`, ratio: 56.25 };
   m = url.match(/dailymotion\.com\/video\/(\w+)/); if (m) return { src: `https://www.dailymotion.com/embed/video/${m[1]}`, ratio: 56.25 };
   if (/^https?:\/\/(www\.)?figma\.com\/(file|design|proto|board)\//.test(url)) return { src: `https://www.figma.com/embed?embed_host=atelier&url=${encodeURIComponent(url)}`, ratio: 75 };

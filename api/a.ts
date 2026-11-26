@@ -249,6 +249,27 @@ export default async function handler(req: any, res: any) {
     if (!u) return send(res, 401, { error: 'Connexion requise' });
     const d = await db();
 
+    // Aperçu d'un lien : titre, description et image de la page (réservé aux comptes connectés)
+    if (x === 'unfurl') {
+      try {
+        const target = new URL(url.searchParams.get('u') || '');
+        if (!/^https?:$/.test(target.protocol)) return send(res, 400, {});
+        const { lookup } = await import('dns/promises');
+        const ip = (await lookup(target.hostname)).address;
+        if (/^(10\.|127\.|0\.|169\.254\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1|f[cd])/i.test(ip)) return send(res, 400, {});
+        const r = await fetch(target.href, { redirect: 'follow', signal: AbortSignal.timeout(6000), headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Twitterbot/1.0)', 'Accept-Language': 'fr,en;q=0.8' } });
+        const html = (await r.text()).slice(0, 400_000);
+        const meta = (k: string) => {
+          const m = html.match(new RegExp(`<meta[^>]+(?:property|name)=["']${k}["'][^>]*content=["']([^"']*)["']`, 'i')) || html.match(new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]*(?:property|name)=["']${k}["']`, 'i'));
+          return m ? m[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'") : '';
+        };
+        let image = meta('og:image') || meta('twitter:image');
+        if (image) { try { image = new URL(image, target.href).href; } catch { image = ''; } }
+        const title = meta('og:title') || meta('twitter:title') || (html.match(/<title[^>]*>([^<]*)/i)?.[1] || '').trim();
+        return send(res, 200, { title, description: meta('og:description') || meta('description'), image });
+      } catch { return send(res, 200, {}); }
+    }
+
     // App de bureau : remet la session au petit serveur local de l'app (127.0.0.1 uniquement, côté navigateur).
     if (x === 'handoff') return send(res, 200, { t: cookie(req, 'atl_s') });
 

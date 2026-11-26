@@ -5,6 +5,7 @@ import { updateData, set, useStore, checkpoint } from '../../store';
 import { blobUrl, cachedBlobUrl, blobGet } from '../../db';
 import { youtubeId, vimeoId, embedInfo, domainOf, formatSize, normalizeUrl, downloadBlob } from '../../files';
 import { Icon } from '../../icons';
+import { api } from '../../cloud';
 import { strokePath } from '../modals/SketchModal';
 
 export function useBlobUrl(id?: string | null) {
@@ -76,11 +77,27 @@ export function LinkCard({ card, editing }: CardProps) {
   const vm = url ? vimeoId(url) : null;
   const domain = url ? domainOf(url) : '';
   const emb = url ? embedInfo(url) : null;
-  const showEmbed = !!emb && !!card.data.embed;
+  const isPin = /pinterest\./.test(url || '');
+  const showEmbed = !!emb && (card.data.embed ?? isPin);
   const readOnly = useStore(s => s.readOnly);
   const [draftUrl, setDraftUrl] = useState(url || '');
   useEffect(() => { setDraftUrl(url || ''); }, [url]);
 
+  const [pv, setPv] = useState<{ image?: string } | null>(null);
+  useEffect(() => {
+    if (!url || card.data.noPreview || emb || readOnly || card.data.image) return;
+    let off = false;
+    api(`unfurl&u=${encodeURIComponent(url)}`).then((r: any) => {
+      if (off || !r) return;
+      const p: any = {};
+      if (r.image) p.image = r.image;
+      if (r.title && !title) p.title = r.title;
+      if (r.description && !description) p.description = String(r.description).slice(0, 240);
+      p.noPreview = true;
+      updateData(card.id, p, false);
+    }).catch(() => {});
+    return () => { off = true; };
+  }, [url]);
   const commitUrl = () => {
     const u = normalizeUrl(draftUrl);
     if (u !== url) { checkpoint(); updateData(card.id, { url: u }, false); }
@@ -105,6 +122,9 @@ export function LinkCard({ card, editing }: CardProps) {
         <div className="link-media" style={emb.px ? { height: emb.px } : { paddingBottom: `${emb.ratio}%` }}>
           <iframe src={emb.src} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen; clipboard-write" allowFullScreen title={title || 'Aperçu'} data-nodrag />
         </div>
+      )}
+      {!showEmbed && !yt && !vm && card.data.image && (
+        <div className="link-media" style={{ paddingBottom: '62%' }}><img src={card.data.image} alt="" draggable={false} referrerPolicy="no-referrer" onError={e => ((e.target as HTMLElement).parentElement!.style.display = 'none')} /></div>
       )}
       {!showEmbed && (yt || vm) && (
         <div className="link-media" style={{ paddingBottom: '56.25%' }}>
