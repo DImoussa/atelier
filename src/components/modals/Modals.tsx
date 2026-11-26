@@ -58,7 +58,7 @@ function Dialog({ title, children, width = 480, onClose }: { title: string; chil
   );
 }
 
-// ---------- Document plein Ã©cran ----------
+// ---------- Document plein écran ----------
 function DocumentModal({ cardId }: { cardId: string }) {
   const card = useStore(s => s.cards[cardId]);
   const readOnly = useStore(s => s.readOnly);
@@ -84,7 +84,7 @@ function DocumentModal({ cardId }: { cardId: string }) {
           <input ref={titleRef} className="doc-title-input" value={card.data.title} placeholder="Titre du document" readOnly={readOnly}
             onFocus={() => checkpoint()} onChange={e => updateData(cardId, { title: e.target.value }, false)}
             onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); (document.querySelector('.doc-page .rich') as HTMLElement)?.focus(); } }} />
-          <RichText html={card.data.html} editing={!readOnly} autoFocusPoint={false} autoFocus={!!card.data.title} placeholder="Commencez Ã  Ã©crireâ€¦" className="doc-rich"
+          <RichText html={card.data.html} editing={!readOnly} autoFocusPoint={false} autoFocus={!!card.data.title} placeholder="Commencez à écrire…" className="doc-rich"
             onChange={html => updateData(cardId, { html }, false)} />
         </div>
       </div>
@@ -116,10 +116,10 @@ function Lightbox({ cardId }: { cardId: string }) {
         <span>{card.data.caption || card.data.name}</span>
         <span className="muted">{idx + 1} / {images.length}</span>
         <div style={{ flex: 1 }} />
-        {card.data.blobId && <button className="icon-btn light" title="TÃ©lÃ©charger" onClick={() => downloadCardFile(card)}><Icon name="download" /></button>}
-        <button className="icon-btn light" title="Fermer (Ã‰chap)" onClick={() => set({ modal: null })}><Icon name="close" /></button>
+        {card.data.blobId && <button className="icon-btn light" title="Télécharger" onClick={() => downloadCardFile(card)}><Icon name="download" /></button>}
+        <button className="icon-btn light" title="Fermer (Échap)" onClick={() => set({ modal: null })}><Icon name="close" /></button>
       </div>
-      {idx > 0 && <button className="lb-nav prev" onClick={() => setId(images[idx - 1].id)} aria-label="PrÃ©cÃ©dente"><Icon name="chevron" size={28} style={{ transform: 'rotate(180deg)' }} /></button>}
+      {idx > 0 && <button className="lb-nav prev" onClick={() => setId(images[idx - 1].id)} aria-label="Précédente"><Icon name="chevron" size={28} style={{ transform: 'rotate(180deg)' }} /></button>}
       {url && <img src={url} alt={card.data.caption || ''} className="lb-img" />}
       {idx < images.length - 1 && <button className="lb-nav next" onClick={() => setId(images[idx + 1].id)} aria-label="Suivante"><Icon name="chevron" size={28} /></button>}
     </div>
@@ -133,14 +133,14 @@ function ShareModal() {
   const link = `${location.origin}${location.pathname}#/b/${boardId}?lecture=1`;
   const [copied, setCopied] = useState(false);
   return (
-    <Dialog title={`Partager Â« ${board?.title} Â»`} width={520}>
+    <Dialog title={`Partager « ${board?.title} »`} width={520}>
       <p className="muted">Cette version de {APP_NAME} enregistre tout dans votre navigateur, sans serveur. Pour partager avec quelqu'un d'autre, envoyez-lui un export.</p>
       <div className="share-block">
         <div className="share-title"><Icon name="eye" size={16} /> Vue en lecture seule</div>
-        <p className="tiny muted">Ouvre cette planche sans possibilitÃ© de la modifier (sur cet appareil).</p>
+        <p className="tiny muted">Ouvre cette planche sans possibilité de la modifier (sur cet appareil).</p>
         <div className="share-row">
           <input readOnly value={link} onFocus={e => e.target.select()} />
-          <button className="btn small" onClick={() => { navigator.clipboard?.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>{copied ? 'CopiÃ© !' : 'Copier'}</button>
+          <button className="btn small" onClick={() => { navigator.clipboard?.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>{copied ? 'Copié !' : 'Copier'}</button>
           <button className="btn small" onClick={() => { set({ modal: null }); navigate(boardId, { readOnly: true }); }}>Ouvrir</button>
         </div>
       </div>
@@ -153,26 +153,26 @@ function ShareModal() {
           <button className="btn" onClick={() => exportMarkdown(boardId)}><Icon name="markdown" size={14} /> Markdown</button>
           <button className="btn" onClick={() => exportWord(boardId)}><Icon name="word" size={14} /> Word</button>
         </div>
-        <p className="tiny muted">Le fichier .json contient toute la planche (sous-planches, images et fichiers compris). Il s'importe via le menu â‹¯ â†’ Importer une planche.</p>
+        <p className="tiny muted">Le fichier .json contient toute la planche (sous-planches, images et fichiers compris). Il s'importe via le menu ⋯ → Importer une planche.</p>
       </div>
     </Dialog>
   );
 }
 
-// ---------- RÃ©glages ----------
+// ---------- Réglages ----------
 function SettingsModal() {
   const settings = useStore(s => s.settings);
   const [usage, setUsage] = useState<string>('');
   useEffect(() => {
-    navigator.storage?.estimate?.().then(e => setUsage(`${((e.usage || 0) / 1024 / 1024).toFixed(1)} Mo utilisÃ©s sur ${((e.quota || 0) / 1024 / 1024 / 1024).toFixed(1)} Go disponibles`));
+    navigator.storage?.estimate?.().then(e => setUsage(`${((e.usage || 0) / 1024 / 1024).toFixed(1)} Mo utilisés sur ${((e.quota || 0) / 1024 / 1024 / 1024).toFixed(1)} Go disponibles`));
   }, []);
   const upd = (p: any) => set({ settings: { ...get().settings, ...p } });
   return (
-    <Dialog title="RÃ©glages">
-      <label className="field"><span>Votre nom (affichÃ© dans les commentaires)</span>
+    <Dialog title="Réglages">
+      <label className="field"><span>Votre nom (affiché dans les commentaires)</span>
         <input value={settings.userName} onChange={e => upd({ userName: e.target.value })} />
       </label>
-      <div className="field"><span>ThÃ¨me</span>
+      <div className="field"><span>Thème</span>
         <div className="seg">
           <button className={settings.theme === 'light' ? 'on' : ''} onClick={() => upd({ theme: 'light' })}>Clair</button>
           <button className={settings.theme === 'dark' ? 'on' : ''} onClick={() => upd({ theme: 'dark' })}>Sombre</button>
@@ -184,21 +184,21 @@ function SettingsModal() {
           <button className={settings.font === 'system' ? 'on' : ''} onClick={() => upd({ font: 'system' })}>Système</button>
         </div>
       </div>
-      <div className="field"><span>Stockage local</span><div className="muted tiny">{usage || 'â€¦'}</div></div>
-      <button className="btn small" onClick={async () => { const ok = await navigator.storage?.persist?.(); toast(ok ? 'Stockage protÃ©gÃ© contre le nettoyage automatique' : 'Le navigateur a refusÃ© la protection du stockage'); }}>ProtÃ©ger mes donnÃ©es contre le nettoyage du navigateur</button>
+      <div className="field"><span>Stockage local</span><div className="muted tiny">{usage || '…'}</div></div>
+      <button className="btn small" onClick={async () => { const ok = await navigator.storage?.persist?.(); toast(ok ? 'Stockage protégé contre le nettoyage automatique' : 'Le navigateur a refusé la protection du stockage'); }}>Protéger mes données contre le nettoyage du navigateur</button>
     </Dialog>
   );
 }
 
 // ---------- Raccourcis ----------
 const SHORTCUTS: [string, string][] = [
-  ['Double-clic sur le fond', 'Nouvelle note'], ['Double-clic sur une carte', 'Modifier / ouvrir'], ['EntrÃ©e', 'Modifier la carte sÃ©lectionnÃ©e'], ['Ã‰chap', 'Terminer / dÃ©sÃ©lectionner'],
-  ['Ctrl Z / Ctrl Maj Z', 'Annuler / rÃ©tablir'], ['Ctrl C / X / V', 'Copier / couper / coller'], ['Ctrl D', 'Dupliquer'], ['Alt + glisser', 'Dupliquer en dÃ©plaÃ§ant'],
-  ['Suppr / Retour arriÃ¨re', 'Mettre Ã  la corbeille'], ['Ctrl A', 'Tout sÃ©lectionner'], ['Maj + clic', 'Ajouter Ã  la sÃ©lection'], ['FlÃ¨ches (Maj)', 'DÃ©placer de 1 px (10 px)'],
-  ['Ctrl K', 'Rechercher'], ['Glisser un point bleu', 'Tracer une flÃ¨che depuis une carte'], ['PrÃ©sentation : â† â†’ Ã‰chap', 'Naviguer / quitter'], ['Pincer (tactile)', 'Zoomer'], ['Espace + glisser / clic molette', 'Se dÃ©placer'], ['Molette', 'DÃ©filer'], ['Ctrl + molette', 'Zoomer'],
-  ['Ctrl + / Ctrl âˆ’', 'Zoom avant / arriÃ¨re'], ['Ctrl 0', 'Zoom 100 %'], ['Ctrl 1', 'Tout afficher'], ['Ctrl glisser', 'DÃ©sactiver l\'aimantation'],
-  ['Alt â†‘ / Alt â†', 'Planche parente'], ['Ctrl ] / Ctrl [', 'Premier plan / arriÃ¨re-plan'], ['N T L B C H D A', 'Ajouter note, tÃ¢ches, lien, planche, colonne, titre, document, audio'], ['Maj 2', 'Zoomer sur la sÃ©lection'], ['Glisser sur le fil dâ€™Ariane', 'Envoyer dans une planche parente'], ['PoignÃ©e dâ€™un titre', 'Agrandir le titre (Maj : largeur seule)'], ['?', 'Cette aide'],
-  ['# + espace', 'Titre (dans une note)'], ['- + espace', 'Liste Ã  puces'], ['1. + espace', 'Liste numÃ©rotÃ©e'], ['Ctrl B / I / U', 'Gras / italique / soulignÃ©'],
+  ['Double-clic sur le fond', 'Nouvelle note'], ['Double-clic sur une carte', 'Modifier / ouvrir'], ['Entrée', 'Modifier la carte sélectionnée'], ['Échap', 'Terminer / désélectionner'],
+  ['Ctrl Z / Ctrl Maj Z', 'Annuler / rétablir'], ['Ctrl C / X / V', 'Copier / couper / coller'], ['Ctrl D', 'Dupliquer'], ['Alt + glisser', 'Dupliquer en déplaçant'],
+  ['Suppr / Retour arrière', 'Mettre à la corbeille'], ['Ctrl A', 'Tout sélectionner'], ['Maj + clic', 'Ajouter à la sélection'], ['Flèches (Maj)', 'Déplacer de 1 px (10 px)'],
+  ['Ctrl K', 'Rechercher'], ['Glisser un point bleu', 'Tracer une flèche depuis une carte'], ['Présentation : ← → Échap', 'Naviguer / quitter'], ['Pincer (tactile)', 'Zoomer'], ['Espace + glisser / clic molette', 'Se déplacer'], ['Molette', 'Défiler'], ['Ctrl + molette', 'Zoomer'],
+  ['Ctrl + / Ctrl −', 'Zoom avant / arrière'], ['Ctrl 0', 'Zoom 100 %'], ['Ctrl 1', 'Tout afficher'], ['Ctrl glisser', 'Désactiver l\'aimantation'],
+  ['Alt ↑ / Alt ←', 'Planche parente'], ['Ctrl ] / Ctrl [', 'Premier plan / arrière-plan'], ['N T L B C H D A', 'Ajouter note, tâches, lien, planche, colonne, titre, document, audio'], ['Maj 2', 'Zoomer sur la sélection'], ['Glisser sur le fil d’Ariane', 'Envoyer dans une planche parente'], ['Poignée d’un titre', 'Agrandir le titre (Maj : largeur seule)'], ['?', 'Cette aide'],
+  ['# + espace', 'Titre (dans une note)'], ['- + espace', 'Liste à puces'], ['1. + espace', 'Liste numérotée'], ['Ctrl B / I / U', 'Gras / italique / souligné'],
 ];
 function ShortcutsModal() {
   return (
@@ -210,8 +210,8 @@ function ShortcutsModal() {
   );
 }
 
-// ---------- IcÃ´ne de planche ----------
-const EMOJIS = ['âœ¦', 'ðŸ ', 'ðŸŽ¬', 'ðŸŽ¥', 'ðŸ“·', 'ðŸŽ¨', 'ðŸ–Œï¸', 'âœï¸', 'âœï¸', 'ðŸ“š', 'ðŸ“–', 'ðŸ“', 'ðŸ“‹', 'ðŸ“Œ', 'ðŸ“Ž', 'ðŸ’¡', 'ðŸ§ ', 'ðŸš€', 'â­', 'â¤ï¸', 'ðŸ”¥', 'ðŸŒ±', 'ðŸŒ', 'ðŸŒ™', 'â˜€ï¸', 'ðŸŽµ', 'ðŸŽ§', 'ðŸŽ¤', 'ðŸŽ®', 'ðŸ§©', 'ðŸ› ï¸', 'âš™ï¸', 'ðŸ’¼', 'ðŸ“ˆ', 'ðŸ’°', 'ðŸ›’', 'âœˆï¸', 'ðŸ—ºï¸', 'ðŸ”ï¸', 'ðŸ³', 'â˜•', 'ðŸŽ', 'ðŸ‘•', 'ðŸ‹ï¸', 'âš½', 'ðŸ¾', 'ðŸ‘¶', 'ðŸ’¬', 'ðŸ“£', 'ðŸ”’', 'ðŸ§ª', 'ðŸ–¥ï¸', 'ðŸ“±', 'ðŸŽ¯', 'ðŸ—‚ï¸', 'ðŸ“…', 'â±ï¸', 'âœ…', 'â“', 'ðŸ‘»'];
+// ---------- Icône de planche ----------
+const EMOJIS = ['✦', '🏠', '🎬', '🎥', '📷', '🎨', '🖌️', '✏️', '✍️', '📚', '📖', '📝', '📋', '📌', '📎', '💡', '🧠', '🚀', '⭐', '❤️', '🔥', '🌱', '🌍', '🌙', '☀️', '🎵', '🎧', '🎤', '🎮', '🧩', '🛠️', '⚙️', '💼', '📈', '💰', '🛒', '✈️', '🗺️', '🏔️', '🍳', '☕', '🎁', '👕', '🏋️', '⚽', '🐾', '👶', '💬', '📣', '🔒', '🧪', '🖥️', '📱', '🎯', '🗂️', '📅', '⏱️', '✅', '❓', '👻'];
 function IconModal({ boardId }: { boardId: string }) {
   const board = useStore(s => s.boards[boardId]);
   const bgUrl = useBlobUrl(board?.bgImage);
@@ -232,7 +232,7 @@ function IconModal({ boardId }: { boardId: string }) {
       <div className="appearance-section">
         <div className="menu-label">Couleur de la vignette</div>
         <div className="color-row big">{BOARD_COLORS.map(c => <button key={c} className={'color-dot' + (board.color === c ? ' on' : '')} style={{ background: c }} onClick={() => updateBoard(boardId, { color: c })} />)}
-          <label className="color-dot custom" title="Couleur personnalisÃ©e"><input type="color" value={board.color} onChange={e => updateBoard(boardId, { color: e.target.value })} />+</label>
+          <label className="color-dot custom" title="Couleur personnalisée"><input type="color" value={board.color} onChange={e => updateBoard(boardId, { color: e.target.value })} />+</label>
         </div>
       </div>
 
@@ -246,11 +246,11 @@ function IconModal({ boardId }: { boardId: string }) {
 
       {!board.cover && (
         <div className="appearance-section">
-          <div className="menu-label">IcÃ´ne</div>
+          <div className="menu-label">Icône</div>
           <div className="emoji-grid">{MILANOTE_ICONS.map(u => <button key={u} className={board.icon === u ? 'on' : ''} onClick={() => updateBoard(boardId, { icon: u })}><img src={u} alt="" width={22} height={22} /></button>)}</div>
           <div className="emoji-grid">{EMOJIS.map(e => <button key={e} className={board.icon === e ? 'on' : ''} onClick={() => updateBoard(boardId, { icon: e })}>{e}</button>)}</div>
-          <label className="field inline"><span>Ou n'importe quel emoji / caractÃ¨re</span>
-            <input maxLength={4} value={/^https?:/.test(board.icon) ? '' : board.icon} onChange={e => updateBoard(boardId, { icon: e.target.value || 'âœ¦' })} style={{ width: 70 }} />
+          <label className="field inline"><span>Ou n'importe quel emoji / caractère</span>
+            <input maxLength={4} value={/^https?:/.test(board.icon) ? '' : board.icon} onChange={e => updateBoard(boardId, { icon: e.target.value || '✦' })} style={{ width: 70 }} />
           </label>
         </div>
       )}
@@ -272,7 +272,7 @@ function IconModal({ boardId }: { boardId: string }) {
   );
 }
 
-// ---------- DÃ©placer vers ----------
+// ---------- Déplacer vers ----------
 function MoveModal({ ids }: { ids: string[] }) {
   const cards = useStore(s => s.cards);
   const boards = useStore(s => s.boards);
@@ -281,7 +281,7 @@ function MoveModal({ ids }: { ids: string[] }) {
   const tree = useMemo(() => {
     const doc = { cards, boards };
     const reach = reachableBoards(doc);
-    // planches qu'on dÃ©place (et leurs descendantes) exclues pour Ã©viter les cycles
+    // planches qu'on déplace (et leurs descendantes) exclues pour éviter les cycles
     const excluded = new Set<string>();
     const stack = ids.map(id => cards[id]).filter(c => c?.type === 'board').map(c => c.data.boardId);
     while (stack.length) {
@@ -302,10 +302,10 @@ function MoveModal({ ids }: { ids: string[] }) {
   }, [cards, boards, ids]);
   const shown = tree.filter(t => !q || boards[t.id]?.title.toLowerCase().includes(q.toLowerCase()));
   return (
-    <Dialog title={`DÃ©placer ${ids.length > 1 ? `${ids.length} Ã©lÃ©ments` : "l'Ã©lÃ©ment"} versâ€¦`} width={420}>
-      <input className="search-input" autoFocus placeholder="Filtrer les planchesâ€¦" value={q} onChange={e => setQ(e.target.value)} />
+    <Dialog title={`Déplacer ${ids.length > 1 ? `${ids.length} éléments` : "l'élément"} vers…`} width={420}>
+      <input className="search-input" autoFocus placeholder="Filtrer les planches…" value={q} onChange={e => setQ(e.target.value)} />
       <div className="move-list" data-scroll>
-        <button className="move-item" onClick={() => { moveToBoard(ids, UNSORTED); set({ modal: null }); }}><Icon name="inbox" size={16} /> Ã€ trier</button>
+        <button className="move-item" onClick={() => { moveToBoard(ids, UNSORTED); set({ modal: null }); }}><Icon name="inbox" size={16} /> À trier</button>
         {shown.map(t => {
           const b = boards[t.id];
           return (
@@ -320,7 +320,7 @@ function MoveModal({ ids }: { ids: string[] }) {
   );
 }
 
-// ---------- Galerie de modÃ¨les ----------
+// ---------- Galerie de modèles ----------
 function TemplatesModal({ boardId }: { boardId: string }) {
   const [cat, setCat] = useState<string>('Tous');
   const [q, setQ] = useState('');
@@ -334,7 +334,7 @@ function TemplatesModal({ boardId }: { boardId: string }) {
     if (nb) navigate(nb);
   };
   return (
-    <Dialog title="Galerie de modÃ¨les" width={860}>
+    <Dialog title="Galerie de modèles" width={860}>
       <div className="tpl-layout">
         <nav className="tpl-cats">
           {['Tous', ...TEMPLATE_CATS].map(c => (
@@ -344,7 +344,7 @@ function TemplatesModal({ boardId }: { boardId: string }) {
           ))}
         </nav>
         <div className="tpl-main">
-          <input className="search-input" placeholder="Rechercher un modÃ¨leâ€¦" value={q} onChange={e => setQ(e.target.value)} autoFocus />
+          <input className="search-input" placeholder="Rechercher un modèle…" value={q} onChange={e => setQ(e.target.value)} autoFocus />
           <div className="templates" data-scroll>
             {list.map(t => (
               <div key={t.id} className="template">
@@ -357,7 +357,7 @@ function TemplatesModal({ boardId }: { boardId: string }) {
                 </div>
               </div>
             ))}
-            {list.length === 0 && <div className="panel-empty">Aucun modÃ¨le trouvÃ©.</div>}
+            {list.length === 0 && <div className="panel-empty">Aucun modèle trouvé.</div>}
           </div>
         </div>
       </div>
