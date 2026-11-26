@@ -1,7 +1,7 @@
 {
   "name": "atelier-desktop",
   "productName": "Atelier",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Atelier : tableaux visuels",
   "author": "DImoussa",
   "main": "main.js",
@@ -35,7 +35,7 @@
       "category": "public.app-category.productivity"
     },
     "directories": { "buildResources": "build" },
-    "icon": "build/icon.png",
+    "icon": "build/icon-noel.png",
     "dmg": {
       "title": "Atelier",
       "contents": [
