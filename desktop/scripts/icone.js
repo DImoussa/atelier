@@ -6,11 +6,13 @@ const path = require('path');
 const { app, BrowserWindow } = require('electron');
 
 const TAILLE = 1024;
-const svg = fs.readFileSync(path.join(__dirname, '..', 'build', 'logo.svg'), 'utf8');
+const FICHIERS = [['logo.svg', 'icon.png'], ['logo-noel.svg', 'icon-noel.png']];
 
 app.whenReady().then(async () => {
   const fenetre = new BrowserWindow({ show: false });
   await fenetre.loadURL('data:text/html,<html></html>');
+  for (const [source, sortie] of FICHIERS) {
+  const svg = fs.readFileSync(path.join(__dirname, '..', 'build', source), 'utf8');
   // Le SVG est dessiné dans un canvas à la taille exacte : pas d'étirement ni de marge.
   const dataUrl = await fenetre.webContents.executeJavaScript(`new Promise((ok) => {
     const img = new Image();
@@ -22,7 +24,8 @@ app.whenReady().then(async () => {
     };
     img.src = 'data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}';
   })`);
-  fs.writeFileSync(path.join(__dirname, '..', 'build', 'icon.png'), Buffer.from(dataUrl.split(',')[1], 'base64'));
-  console.log('build/icon.png écrit');
+  fs.writeFileSync(path.join(__dirname, '..', 'build', sortie), Buffer.from(dataUrl.split(',')[1], 'base64'));
+  console.log(`build/${sortie} écrit`);
+  }
   app.exit(0);
 });

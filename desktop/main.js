@@ -22,7 +22,7 @@ app.on('second-instance', () => { afficher(); maj.reverifier(); });
 function creer() {
   fenetre = new BrowserWindow({
     width: 1280, height: 820, minWidth: 720, minHeight: 480, autoHideMenuBar: true, title: 'Atelier',
-    icon: path.join(__dirname, 'build', 'icon.png'),
+    icon: path.join(__dirname, 'build', (() => { const d = new Date(); return d.getMonth() === 11 && d.getDate() <= 26; })() ? 'icon-noel.png' : 'icon.png'),
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false },
   });
   fenetre.loadURL(SITE);

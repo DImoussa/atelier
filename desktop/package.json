@@ -1,7 +1,7 @@
 {
   "name": "atelier-desktop",
   "productName": "Atelier",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Atelier : tableaux visuels",
   "author": "DImoussa",
   "main": "main.js",
@@ -20,7 +20,7 @@
   },
   "build": {
     "appId": "com.dimoussa.atelier",
-    "files": ["main.js", "preload.js", "src/**", "build/icon.png"],
+    "files": ["main.js", "preload.js", "src/**", "build/icon.png", "build/icon-noel.png"],
     "win": { "target": "nsis" },
     "nsis": {
       "oneClick": true,
