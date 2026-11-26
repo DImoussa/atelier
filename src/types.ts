@@ -61,7 +61,7 @@ export interface Doc {
 
 export interface Viewport { x: number; y: number; zoom: number }
 
-export interface Settings { userName: string; theme: 'light' | 'dark' }
+export interface Settings { userName: string; theme: 'light' | 'dark'; font?: 'inter' | 'system' }
 
 export const CARD_COLORS: { id: string | null; label: string; bg: string; fg?: string }[] = [
   { id: null, label: 'Par défaut', bg: 'var(--card)' },

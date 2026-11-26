@@ -178,6 +178,12 @@ function SettingsModal() {
           <button className={settings.theme === 'dark' ? 'on' : ''} onClick={() => upd({ theme: 'dark' })}>Sombre</button>
         </div>
       </div>
+      <div className="field"><span>Police</span>
+        <div className="seg">
+          <button className={(settings.font ?? 'inter') === 'inter' ? 'on' : ''} onClick={() => upd({ font: 'inter' })}>Inter</button>
+          <button className={settings.font === 'system' ? 'on' : ''} onClick={() => upd({ font: 'system' })}>Système</button>
+        </div>
+      </div>
       <div className="field"><span>Stockage local</span><div className="muted tiny">{usage || 'â€¦'}</div></div>
       <button className="btn small" onClick={async () => { const ok = await navigator.storage?.persist?.(); toast(ok ? 'Stockage protÃ©gÃ© contre le nettoyage automatique' : 'Le navigateur a refusÃ© la protection du stockage'); }}>ProtÃ©ger mes donnÃ©es contre le nettoyage du navigateur</button>
     </Dialog>

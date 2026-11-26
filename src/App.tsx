@@ -29,6 +29,12 @@ export function App() {
   const presenting = usePresentation(s => !!s.pres);
 
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
+  const font = useStore(s => s.settings.font ?? 'inter');
+  useEffect(() => {
+    const st = document.documentElement.style;
+    if (font === 'inter') { st.setProperty('--sans', "'Inter', system-ui, sans-serif"); st.setProperty('--serif', "'Inter', system-ui, sans-serif"); }
+    else { st.removeProperty('--sans'); st.removeProperty('--serif'); }
+  }, [font]);
   useEffect(() => { document.title = board ? `${board.id === ROOT_ID ? 'Accueil' : board.title} — ${APP_NAME}` : APP_NAME; }, [board?.title]);
 
   useEffect(() => {
