@@ -6,7 +6,7 @@ const path = require('path');
 const { app, BrowserWindow } = require('electron');
 
 const TAILLE = 1024;
-const FICHIERS = [['logo.svg', 'icon.png'], ['logo-noel.svg', 'icon-noel.png']];
+const FICHIERS = [['logo.svg', 'icon.png'], ['logo-noel-app.svg', 'icon-noel.png']];
 
 app.whenReady().then(async () => {
   const fenetre = new BrowserWindow({ show: false });

@@ -1,7 +1,7 @@
 {
   "name": "atelier-desktop",
   "productName": "Atelier",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Atelier : tableaux visuels",
   "author": "DImoussa",
   "main": "main.js",
