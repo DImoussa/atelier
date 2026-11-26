@@ -11,6 +11,20 @@ export function vimeoId(url: string): string | null {
   const m = url.match(/vimeo\.com\/(\d+)/);
   return m ? m[1] : null;
 }
+// Adresse « intégrable » (aperçu dans la carte) pour les sites qui l'autorisent ; h = hauteur en % de la largeur, ou px fixes.
+export function embedInfo(url: string): { src: string; ratio?: number; px?: number } | null {
+  const yt = youtubeId(url); if (yt) return { src: `https://www.youtube-nocookie.com/embed/${yt}`, ratio: 56.25 };
+  const vm = vimeoId(url); if (vm) return { src: `https://player.vimeo.com/video/${vm}`, ratio: 56.25 };
+  let m = url.match(/open\.spotify\.com\/(?:intl-\w+\/)?(track|album|playlist|episode|show|artist)\/([\w]+)/);
+  if (m) return { src: `https://open.spotify.com/embed/${m[1]}/${m[2]}`, px: m[1] === 'track' || m[1] === 'episode' ? 152 : 352 };
+  if (/^https?:\/\/(www\.)?soundcloud\.com\/[^/]+\/[^/]+/.test(url)) return { src: `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}`, px: 166 };
+  m = url.match(/loom\.com\/(?:share|embed)\/([\w]+)/); if (m) return { src: `https://www.loom.com/embed/${m[1]}`, ratio: 56.25 };
+  m = url.match(/dailymotion\.com\/video\/(\w+)/); if (m) return { src: `https://www.dailymotion.com/embed/video/${m[1]}`, ratio: 56.25 };
+  if (/^https?:\/\/(www\.)?figma\.com\/(file|design|proto|board)\//.test(url)) return { src: `https://www.figma.com/embed?embed_host=atelier&url=${encodeURIComponent(url)}`, ratio: 75 };
+  m = url.match(/^(https?:\/\/docs\.google\.com\/(?:document|spreadsheets|presentation)\/d\/[\w-]+)/); if (m) return { src: `${m[1]}/preview`, ratio: 75 };
+  m = url.match(/^(https?:\/\/drive\.google\.com)\/file\/d\/([\w-]+)/); if (m) return { src: `${m[1]}/file/d/${m[2]}/preview`, ratio: 75 };
+  return null;
+}
 export function isUrl(s: string) {
   return /^https?:\/\/\S+$/i.test(s.trim());
 }

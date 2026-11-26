@@ -67,7 +67,7 @@ export function BoardCard({ card, editing }: CardProps) {
   return (
     <div className="board-card">
       <BoardIcon board={board} />
-      <PlainText className="board-title" value={board.title} editing={editing} placeholder="Sans titre"
+      <PlainText className="board-title" focusOnEdit value={board.title} editing={editing} placeholder="Sans titre"
         onChange={title => updateBoard(board.id, { title })}
         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); set({ editingId: null }); } }} />
       <div className="board-count">{label}</div>

@@ -463,6 +463,10 @@ export function Canvas() {
     }
     const c = s.cards[cardEl.dataset.cardId!];
     if (!c) return;
+    if (c.type === 'board' && !s.readOnly && target.closest('.board-title')) {
+      if (s.editingId !== c.id) set({ editingId: c.id, editPoint: { x: e.clientX, y: e.clientY }, selection: [c.id] });
+      return;
+    }
     if (c.type === 'board') { navigate(c.data.boardId, { readOnly: s.readOnly }); return; }
     if (c.type === 'image') { set({ modal: { kind: 'lightbox', cardId: c.id } }); return; }
     if (s.readOnly) { if (c.type === 'document') set({ modal: { kind: 'document', cardId: c.id } }); return; }

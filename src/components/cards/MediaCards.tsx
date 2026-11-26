@@ -3,7 +3,7 @@ import type { CardProps } from '../CardView';
 import { PlainText } from '../RichText';
 import { updateData, set, useStore, checkpoint } from '../../store';
 import { blobUrl, cachedBlobUrl, blobGet } from '../../db';
-import { youtubeId, vimeoId, domainOf, formatSize, normalizeUrl, downloadBlob } from '../../files';
+import { youtubeId, vimeoId, embedInfo, domainOf, formatSize, normalizeUrl, downloadBlob } from '../../files';
 import { Icon } from '../../icons';
 import { strokePath } from '../modals/SketchModal';
 
@@ -75,6 +75,8 @@ export function LinkCard({ card, editing }: CardProps) {
   const yt = url ? youtubeId(url) : null;
   const vm = url ? vimeoId(url) : null;
   const domain = url ? domainOf(url) : '';
+  const emb = url ? embedInfo(url) : null;
+  const showEmbed = !!emb && !!card.data.embed;
   const readOnly = useStore(s => s.readOnly);
   const [draftUrl, setDraftUrl] = useState(url || '');
   useEffect(() => { setDraftUrl(url || ''); }, [url]);
@@ -99,7 +101,12 @@ export function LinkCard({ card, editing }: CardProps) {
 
   return (
     <div className="link-card">
-      {(yt || vm) && (
+      {showEmbed && emb && (
+        <div className="link-media" style={emb.px ? { height: emb.px } : { paddingBottom: `${emb.ratio}%` }}>
+          <iframe src={emb.src} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen; clipboard-write" allowFullScreen title={title || 'Aperçu'} data-nodrag />
+        </div>
+      )}
+      {!showEmbed && (yt || vm) && (
         <div className="link-media" style={{ paddingBottom: '56.25%' }}>
           {playing ? (
             <iframe src={yt ? `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1` : `https://player.vimeo.com/video/${vm}?autoplay=1`}
@@ -117,6 +124,10 @@ export function LinkCard({ card, editing }: CardProps) {
         <div className="link-domain">
           <img className="favicon" src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32`} alt="" draggable={false} />
           <span>{domain}</span>
+          {emb && !readOnly && (
+            <button className={'icon-btn small' + (showEmbed ? ' on' : '')} data-nodrag title={showEmbed ? 'Revenir à la carte de lien' : 'Afficher en aperçu'}
+              onClick={() => { checkpoint(); updateData(card.id, { embed: !showEmbed }, false); }}><Icon name="eye" size={14} /></button>
+          )}
           <a className="icon-btn small" href={url} target="_blank" rel="noopener noreferrer" title="Ouvrir le lien" data-nodrag><Icon name="export" size={14} /></a>
         </div>
         <PlainText className="link-title" value={title} editing={editing} placeholder={editing ? 'Titre du lien' : url}

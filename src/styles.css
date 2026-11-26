@@ -544,3 +544,4 @@ button.crumb:hover { background: var(--hover); color: var(--text); }
 .more-pop { position: fixed; left: 84px; bottom: 90px; z-index: 60; display: grid; grid-template-columns: repeat(4, 74px); gap: 4px; padding: 14px 10px; background: var(--card, #fff); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.18); }
 .more-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 2px; border: 0; background: none; border-radius: 8px; color: inherit; cursor: pointer; font: inherit; font-size: 11px; }
 .more-item:hover { background: rgba(0,0,0,.06); }
+.link-media iframe[data-nodrag]{pointer-events:auto}.icon-btn.on{background:var(--hover);color:var(--accent)}
