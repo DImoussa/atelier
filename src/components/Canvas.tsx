@@ -73,7 +73,7 @@ export function Canvas() {
   // Vue initiale d'une planche jamais ouverte : on cadre le contenu.
   useEffect(() => {
     if (get().viewports[boardId]) return;
-    const r = requestAnimationFrame(() => requestAnimationFrame(() => fitToContent(1)));
+    const r = requestAnimationFrame(() => requestAnimationFrame(() => fitToContent(1, true)));
     return () => cancelAnimationFrame(r);
   }, [boardId]);
 
@@ -252,7 +252,24 @@ export function Canvas() {
     return true;
   };
 
+  // Au plus un traitement par image affichée (les souris/stylets envoient bien plus d'événements que l'écran n'en montre)
+  const pendingMove = useRef<PointerEvent | null>(null);
+  const moveRaf = useRef(0);
   const onMove = (e: PointerEvent) => {
+    pendingMove.current = e;
+    if (moveRaf.current) return;
+    moveRaf.current = requestAnimationFrame(() => {
+      moveRaf.current = 0;
+      const p = pendingMove.current; pendingMove.current = null;
+      if (p) processMove(p);
+    });
+  };
+  const flushMove = () => {
+    if (moveRaf.current) { cancelAnimationFrame(moveRaf.current); moveRaf.current = 0; }
+    const p = pendingMove.current; pendingMove.current = null;
+    if (p) processMove(p);
+  };
+  const processMove = (e: PointerEvent) => {
     const sess = session.current;
     if (!sess) return;
     const s = get();
@@ -357,10 +374,10 @@ export function Canvas() {
         const pr = cardRect(prim);
         const R = { x: s0.x + dx, y: s0.y + dy, w: pr.w, h: pr.h };
         const thr = 6 / v.zoom;
-        const others = Object.values(st.cards).filter(c => c.parent === st.boardId && !c.trashed && c.type !== 'line' && !sess.ids.includes(c.id));
+        const others: any[] = ((sess as any).others ??= Object.values(st.cards).filter(c => c.parent === st.boardId && !c.trashed && c.type !== 'line' && !sess.ids.includes(c.id)).map(c => ({ ...c, _r: cardRect(c) })));
         let bestX: any = null, bestY: any = null;
         for (const o of others) {
-          const r = cardRect(o);
+          const r = o._r;
           const xs = [r.x, r.x + r.w / 2, r.x + r.w], ys = [r.y, r.y + r.h / 2, r.y + r.h];
           const mxs = [R.x, R.x + R.w / 2, R.x + R.w], mys = [R.y, R.y + R.h / 2, R.y + R.h];
           for (const a of xs) for (const b of mxs) { const diff = a - b; if (Math.abs(diff) < thr && (!bestX || Math.abs(diff) < Math.abs(bestX.diff))) bestX = { diff, at: a, r }; }
@@ -400,6 +417,7 @@ export function Canvas() {
   };
 
   const onUp = (e: PointerEvent) => {
+    flushMove();
     detach();
     const sess = session.current;
     if (sess?.kind === 'pinch' && touches.current.size >= 2) return; // un doigt encore posé sur deux

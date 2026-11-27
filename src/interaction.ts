@@ -9,7 +9,7 @@ let canvasEl: HTMLElement | null = null;
 export function registerCanvas(el: HTMLElement | null) { canvasEl = el; }
 export function getCanvas() { return canvasEl; }
 
-export const DEFAULT_VP: Viewport = { x: 0, y: 0, zoom: 1 };
+export const DEFAULT_VP: Viewport = { x: 0, y: 0, zoom: 0.8 };
 export function currentVp(): Viewport {
   const s = get();
   return s.viewports[s.boardId] || DEFAULT_VP;
@@ -52,13 +52,14 @@ export function contentBounds(boardId = get().boardId) {
   return boundsOf(rects);
 }
 
-export function fitToContent(maxZoom = 1) {
+export const OPEN_ZOOM = 0.8;
+export function fitToContent(maxZoom = 1, exact = false) {
   const r = canvasEl?.getBoundingClientRect();
   if (!r) return;
   const b = contentBounds();
-  if (!b) { setViewport({ x: r.width / 2 - 300, y: 120, zoom: 1 }); return; }
+  if (!b) { setViewport({ x: r.width / 2 - 300, y: 120, zoom: OPEN_ZOOM }); return; }
   const pad = 80;
-  const z = clampZoom(Math.min(maxZoom, (r.width - pad * 2) / Math.max(b.w, 1), (r.height - pad * 2) / Math.max(b.h, 1)));
+  const z = exact ? OPEN_ZOOM : clampZoom(Math.min(maxZoom, (r.width - pad * 2) / Math.max(b.w, 1), (r.height - pad * 2) / Math.max(b.h, 1)));
   setViewport({ zoom: z, x: r.width / 2 - (b.x + b.w / 2) * z, y: r.height / 2 - (b.y + b.h / 2) * z });
 }
 

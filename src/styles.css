@@ -110,7 +110,7 @@ button.crumb:hover { background: var(--hover); color: var(--text); }
 /* ============ Canevas ============ */
 .canvas { flex: 1; position: relative; overflow: hidden; background: var(--canvas); touch-action: none; user-select: none; outline: none; }
 .canvas.file-over::after { content: 'Déposez pour ajouter à la planche'; position: absolute; inset: 12px; border: 2px dashed var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent); font-weight: 600; background: var(--accent-soft); pointer-events: none; z-index: 50; }
-.world { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; }
+.world { will-change: transform; position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; }
 .marquee { position: absolute; border: 1px solid var(--accent); background: var(--accent-soft); pointer-events: none; z-index: 99999; }
 .guide { position: absolute; background: #ec4899; pointer-events: none; z-index: 99998; }
 .guide.v { width: calc(1px / var(--z)); }
